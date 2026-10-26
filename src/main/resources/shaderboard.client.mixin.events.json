@@ -1,0 +1,12 @@
+{
+	"package": "com.thecsdev.shaderboard.client.mixin.events",
+	"required": true,
+	"minVersion": "0.8",
+	"compatibilityLevel": "JAVA_25",
+	"injectors": { "defaultRequire": 1 },
+	"client":
+	[
+		"MixinPostPass",
+		"MixinShaderManager"
+	]
+}
