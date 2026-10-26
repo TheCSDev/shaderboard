@@ -1,0 +1,41 @@
+{
+	"targets": {},
+	"passes":
+	[
+		{
+			"vertex_shader": "minecraft:core/screenquad",
+			"fragment_shader": "shaderboard:post/example_1",
+			"inputs":
+			[
+				{
+					"sampler_name": "In",
+					"target": "minecraft:main",
+					"bilinear": true
+				}
+			],
+			"output": "minecraft:main",
+			"uniforms": {}
+		}
+	],
+	"shaderboard:bindings":
+	[
+		{
+			"uniform_name": "u_TopScore",
+			"type": "shaderboard:scoreboard_objective",
+			"objective": "example_1",
+			"target": { "type": "top_player" }
+		},
+		{
+			"uniform_name": "u_MyScore",
+			"type": "shaderboard:scoreboard_objective",
+			"objective": "example_1",
+			"target": { "type": "local_player" }
+		},
+		{
+			"uniform_name": "u_SteveScore",
+			"type": "shaderboard:scoreboard_objective",
+			"objective": "example_1",
+			"target": { "type": "player", "name": "Steve" }
+		}
+	]
+}
