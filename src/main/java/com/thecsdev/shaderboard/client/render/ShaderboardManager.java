@@ -3,11 +3,11 @@ package com.thecsdev.shaderboard.client.render;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.buffers.GpuBuffer;
 import com.mojang.serialization.JsonOps;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBinding;
+import com.thecsdev.shaderboard.api.client.binding.value.ShaderboardValueWriter;
 import com.thecsdev.shaderboard.client.mixin.hooks.AccessorShaderManager;
 import io.netty.util.internal.UnstableApi;
 import net.fabricmc.api.EnvType;
@@ -20,6 +20,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.StrictJsonParser;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.system.MemoryStack;
 
 import java.util.*;
@@ -59,7 +60,7 @@ public final class ShaderboardManager
 	 * <p>
 	 * Replaced entirely on every resource reload, hence {@code volatile}.
 	 */
-	private static volatile @NotNull Map<Identifier, Map<Integer, List<ShaderboardBinding>>> BINDINGS = Map.of();
+	private static volatile @NotNull Map<Identifier, Map<Integer, List<ShaderboardBinding<?>>>> BINDINGS = Map.of();
 	// ==================================================
 	private ShaderboardManager() {}
 	// ==================================================
@@ -78,7 +79,7 @@ public final class ShaderboardManager
 			throws NullPointerException
 	{
 		//create a new temp. map to collect bindings into
-		final var collected = new HashMap<Identifier, Map<Integer, List<ShaderboardBinding>>>();
+		final var collected = new HashMap<Identifier, Map<Integer, List<ShaderboardBinding<?>>>>();
 
 		//begin collecting bindings
 		// ---------- obtain a collection post-effect resources
@@ -102,8 +103,8 @@ public final class ShaderboardManager
 			final var json = jsonElement.getAsJsonObject();
 
 			//read/parse defined bindings from the json
-			final var bindings_root    = parseBindings(json, entry.getKey());                    //binding definitions found in json's root
-			final var bindings_perPass = new LinkedHashMap<Integer, List<ShaderboardBinding>>(); //binding definitions found in individual post-effect passes
+			final var bindings_root    = parseBindings(json, entry.getKey());                       //binding definitions found in json's root
+			final var bindings_perPass = new LinkedHashMap<Integer, List<ShaderboardBinding<?>>>(); //binding definitions found in individual post-effect passes
 
 			//in addition to bindings declared in the json's root, each post-effect's
 			//"pass" can have its own bindings defined as well. we read and parse
@@ -131,8 +132,8 @@ public final class ShaderboardManager
 			if(bindings_root.isEmpty() && bindings_perPass.isEmpty()) continue;
 
 			// ---------- merge the collected bindings into one unified map
-			final var effectId        = POST_CHAIN_ID_CONVERTER.fileToId(entry.getKey()); //ex. "minecraft:blur"
-			final var bindings_merged = new HashMap<Integer, List<ShaderboardBinding>>(); //map for merging bindings
+			final var effectId        = POST_CHAIN_ID_CONVERTER.fileToId(entry.getKey());    //ex. "minecraft:blur"
+			final var bindings_merged = new HashMap<Integer, List<ShaderboardBinding<?>>>(); //map for merging bindings
 
 			//iterate passes, merge bindings for each pass
 			for(int i = 0; i < passCount; i++)
@@ -168,7 +169,7 @@ public final class ShaderboardManager
 	 * @param resourceId ID of the resource the JSON came from. Used solely for logging.
 	 * @throws NullPointerException If the argument is {@code null}.
 	 */
-	private static @NotNull List<ShaderboardBinding> parseBindings(
+	private static @NotNull List<ShaderboardBinding<?>> parseBindings(
 			@NotNull JsonObject postEffectJson,
 			@NotNull Identifier resourceId) throws NullPointerException
 	{
@@ -181,7 +182,7 @@ public final class ShaderboardManager
 		if(!json_bindings.isJsonArray()) return List.of();
 
 		//parse defined bindings individually, then return them
-		final var result = new ArrayList<ShaderboardBinding>();
+		final var result = new ArrayList<ShaderboardBinding<?>>();
 		for(final var json_binding : json_bindings.getAsJsonArray()) {
 			ShaderboardBinding.CODEC.parse(JsonOps.INSTANCE, json_binding)
 					.resultOrPartial(message -> LOGGER.error("Failed to parse bindings for '{}' because: {}", resourceId, message))
@@ -237,7 +238,7 @@ public final class ShaderboardManager
 							effectId, binding.getUniformName());
 					continue;
 				}
-				uniforms.put(binding.getUniformName(), List.of(FloatUniformValue.INSTANCE));
+				uniforms.put(binding.getUniformName(), List.of(new ShaderboardUniformValue(binding.getValueType())));
 				changed = true;
 			}
 
@@ -288,26 +289,53 @@ public final class ShaderboardManager
 		//write each binding's resolved value into its uniform buffer
 		for(final var binding : passBindings)
 		{
-			var buffer = customUniforms.get(binding.getUniformName());
-			if(buffer == null) continue;
+			//obtain the uniform's name and the number of bytes its buffer must hold
+			final String name = binding.getUniformName();
+			final int    size = binding.getUniformSize();
 
-			//vanilla creates these buffers with 'USAGE_UNIFORM' only, making them
+			//obtain the buffer for the custom uniform value
+			var buffer = customUniforms.get(name);
+			if(buffer == null) continue; //and do nothing if not present
+
+			//the game creates these buffers with 'USAGE_UNIFORM' only, making them
 			//impossible to update after creation. swap in a buffer we can write to
-			if((buffer.usage() & GpuBuffer.USAGE_COPY_DST) == 0) {
+			if(buffer.size() != size || (buffer.usage() & GpuBuffer.USAGE_COPY_DST) == 0)
+			{
+				//create and swap buffers
+				final var oldBuffer = buffer;
 				buffer = RenderSystem.getDevice().createBuffer(
-						() -> "Shaderboard dynamic binding",
+						() -> "Shaderboard binding '" + name + "'",
 						GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST,
-						4L);
-				customUniforms.put(binding.getUniformName(), buffer);
+						size);
+				customUniforms.put(name, buffer);
+
+				//release the game's old buffer
+				oldBuffer.close();
 			}
 
-			//resolve and upload the value
-			try(final var stack = MemoryStack.stackPush()) {
-				//a binding is a single std140 float, so exactly 4 bytes
-				final var data = Std140Builder.onStack(stack, 4).putFloat(binding.resolve()).get();
-				RenderSystem.getDevice().createCommandEncoder().writeToBuffer(buffer.slice(), data);
+			//obtain and upload the value
+			try(final var stack = MemoryStack.stackPush())
+			{
+				//allocate a buffer and write the value to it
+				final var out = new ShaderboardValueWriter(stack.calloc(size));
+				writeBindingValue(binding, out); //write binding value
+				out.putZeroTo(size);             //write zeros for remaining bytes
+				//upload the data
+				RenderSystem.getDevice().createCommandEncoder().writeToBuffer(buffer.slice(), out.flip());
 			}
 		}
+	}
+	// --------------------------------------------------
+	/**
+	 * Java generics helper method that writes the value of a {@link ShaderboardBinding}
+	 * to a given {@link ShaderboardValueWriter}.
+	 * @param binding The binding whose value is to be written.
+	 * @param out Where to write the value.
+	 * @param <V> Generics helper.
+	 */
+	@ApiStatus.Internal
+	private static <V> void writeBindingValue(@NonNull ShaderboardBinding<V> binding, ShaderboardValueWriter out) {
+		binding.getValueType().write(out, binding.getValue());
 	}
 	// ==================================================
 }

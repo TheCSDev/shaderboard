@@ -52,10 +52,10 @@ Add a `"shaderboard:bindings"` array at the root of a [post-effect JSON](https:/
 
 ## Reading a binding's value in GLSL
 
-Each binding's `uniform_name` becomes a `layout(std140)` uniform block, and value comes in as a `float`:
+Each binding's `uniform_name` becomes a `layout(std140)` uniform block. Its contents are defined by the binding's **value type**. The scoreboard binding produces a single `int`:
 
 ```glsl
-layout(std140) uniform u_TopScore { float topScore; };
+layout(std140) uniform u_TopScore { int topScore; };
 
 void main()
 {

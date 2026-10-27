@@ -5,6 +5,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBinding;
+import com.thecsdev.shaderboard.api.client.binding.value.ShaderboardValueType;
+import com.thecsdev.shaderboard.api.client.binding.value.ShaderboardValueTypes;
+import com.thecsdev.shaderboard.client.mixin.hooks.AccessorHud;
+import com.thecsdev.shaderboard.client.registry.ShaderboardBindingTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -14,7 +18,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -24,7 +27,7 @@ import java.util.Optional;
  */
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-public final class ScoreboardBinding extends ShaderboardBinding
+public final class ScoreboardBinding extends ShaderboardBinding<Integer>
 {
 	// ================================================== ==================================================
 	//                                  ScoreboardBinding IMPLEMENTATION
@@ -53,6 +56,9 @@ public final class ScoreboardBinding extends ShaderboardBinding
 	public final @Override @NotNull ScoreboardBinding clone() {
 		return new ScoreboardBinding(getUniformName(), getObjective(), getTarget());
 	}
+	public final @Override @NotNull ShaderboardValueType<Integer> getValueType() {
+		return ShaderboardValueTypes.INT;
+	}
 	// ==================================================
 	/**
 	 * Returns the name of the scoreboard objective whose value is to be bound.
@@ -64,17 +70,7 @@ public final class ScoreboardBinding extends ShaderboardBinding
 	 */
 	public final @NotNull Target getTarget() { return this.target; }
 	// ==================================================
-	/**
-	 * To save on resource usage, this {@link Comparator} is stored in a {@code static}
-	 * field instead of being recreated each {@link #resolve()} call.
-	 */
-	@ApiStatus.Internal
-	private static final Comparator<PlayerScoreEntry> SCORE_SORTER = Comparator
-			.comparing(PlayerScoreEntry::value)
-			.reversed()
-			.thenComparing(PlayerScoreEntry::owner, String.CASE_INSENSITIVE_ORDER);
-
-	public final @Override float resolve()
+	public final @Override @NotNull Integer getValue()
 	{
 		//resolving requires presence of a loaded level and player
 		final var client = Minecraft.getInstance();
@@ -90,7 +86,8 @@ public final class ScoreboardBinding extends ShaderboardBinding
 		//(this should ideally match order in which gui 'sidebar' displays scores)
 		final var scores = scoreboard.listPlayerScores(objective)
 				.stream()
-				.sorted(SCORE_SORTER)
+				.filter(input -> !input.isHidden())
+				.sorted(AccessorHud.getScoreDisplayOrder())
 				.toList();
 
 		//resolve result

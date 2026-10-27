@@ -17,7 +17,7 @@ import java.util.Objects;
  * @param <T> {@link ShaderboardBinding} type.
  */
 @Environment(EnvType.CLIENT)
-public abstract class ShaderboardBindingType<T extends ShaderboardBinding>
+public abstract class ShaderboardBindingType<T extends ShaderboardBinding<?>>
 {
 	// ==================================================
 	private final @NotNull Class<T> baseClass;
