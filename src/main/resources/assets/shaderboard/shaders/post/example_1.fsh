@@ -13,9 +13,9 @@ layout(std140) uniform SamplerInfo {
 	vec2 InSize;
 };
 // --------------------------------------------------
-layout(std140) uniform u_TopScore   { float topScore; };   //from "shaderboard:bindings":
-layout(std140) uniform u_MyScore	{ float myScore; };    //from "shaderboard:bindings":
-layout(std140) uniform u_SteveScore { float steveScore; }; //from "shaderboard:bindings":
+layout(std140) uniform u_TopScore   { int topScore; };   //from "shaderboard:bindings":
+layout(std140) uniform u_MyScore    { int myScore; };    //from "shaderboard:bindings":
+layout(std140) uniform u_SteveScore { int steveScore; }; //from "shaderboard:bindings":
 // ==================================================
 /**
  * Draws an int32 as a horizontal binary "barcode" stripe.
@@ -41,8 +41,8 @@ void main()
 	fragColor = texture(InSampler, texCoord);
 
 	//draw the 3 scoreboard values on screen
-	drawBinaryValue(int(topScore),   0.975, 0.025);
-	drawBinaryValue(int(myScore),    0.950, 0.025);
-	drawBinaryValue(int(steveScore), 0.925, 0.025);
+	drawBinaryValue(topScore,   0.975, 0.025);
+	drawBinaryValue(myScore,    0.950, 0.025);
+	drawBinaryValue(steveScore, 0.925, 0.025);
 }
 // ==================================================

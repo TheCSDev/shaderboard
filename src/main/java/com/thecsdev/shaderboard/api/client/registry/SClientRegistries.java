@@ -4,7 +4,7 @@ import com.mojang.serialization.Lifecycle;
 import com.thecsdev.shaderboard.Shaderboard;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBinding;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBindingType;
-import com.thecsdev.shaderboard.client.binding.ShaderboardBindingTypes;
+import com.thecsdev.shaderboard.client.registry.ShaderboardBindingTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.MappedRegistry;

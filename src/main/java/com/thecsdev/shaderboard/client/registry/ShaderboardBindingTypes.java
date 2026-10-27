@@ -1,8 +1,9 @@
-package com.thecsdev.shaderboard.client.binding;
+package com.thecsdev.shaderboard.client.registry;
 
 import com.mojang.serialization.MapCodec;
 import com.thecsdev.shaderboard.Shaderboard;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBindingType;
+import com.thecsdev.shaderboard.client.binding.ScoreboardBinding;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.ApiStatus;
