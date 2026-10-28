@@ -48,6 +48,7 @@ public final class SClientRegistries
 
 		//register binding types
 		Registry.register(BINDING_TYPE, id("scoreboard_objective"), ShaderboardBindingTypes.SCOREBOARD_OBJECTIVE);
+		Registry.register(BINDING_TYPE, id("local_player_health"),  ShaderboardBindingTypes.LOCAL_PLAYER_HEALTH);
 	}
 	// --------------------------------------------------
 	/**

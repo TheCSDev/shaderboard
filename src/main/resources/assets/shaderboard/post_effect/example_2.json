@@ -1,0 +1,27 @@
+{
+	"targets": {},
+	"passes":
+	[
+		{
+			"vertex_shader": "minecraft:core/screenquad",
+			"fragment_shader": "shaderboard:post/example_2",
+			"inputs":
+			[
+				{
+					"sampler_name": "In",
+					"target": "minecraft:main",
+					"bilinear": true
+				}
+			],
+			"output": "minecraft:main",
+			"uniforms": {}
+		}
+	],
+	"shaderboard:bindings":
+	[
+		{
+			"uniform_name": "u_MyHealth",
+			"type": "shaderboard:local_player_health"
+		}
+	]
+}
