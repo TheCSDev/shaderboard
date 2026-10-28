@@ -3,6 +3,7 @@ package com.thecsdev.shaderboard.client.registry;
 import com.mojang.serialization.MapCodec;
 import com.thecsdev.shaderboard.Shaderboard;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBindingType;
+import com.thecsdev.shaderboard.client.binding.SBinding_LocalPlayerFood;
 import com.thecsdev.shaderboard.client.binding.SBinding_LocalPlayerHealth;
 import com.thecsdev.shaderboard.client.binding.SBinding_Scoreboard;
 import net.fabricmc.api.EnvType;
@@ -31,6 +32,13 @@ public final class ShaderboardBindingTypes
 	 */
 	public static final ShaderboardBindingType<SBinding_LocalPlayerHealth> LOCAL_PLAYER_HEALTH = new ShaderboardBindingType<>(SBinding_LocalPlayerHealth.class) {
 		public final @Override @NotNull MapCodec<SBinding_LocalPlayerHealth> getCodec() { return SBinding_LocalPlayerHealth.CODEC; }
+	};
+
+	/**
+	 * {@link ShaderboardBindingType} for {@link SBinding_LocalPlayerFood}.
+	 */
+	public static final ShaderboardBindingType<SBinding_LocalPlayerFood> LOCAL_PLAYER_FOOD = new ShaderboardBindingType<>(SBinding_LocalPlayerFood.class) {
+		public final @Override @NotNull MapCodec<SBinding_LocalPlayerFood> getCodec() { return SBinding_LocalPlayerFood.CODEC; }
 	};
 	// ==================================================
 }
