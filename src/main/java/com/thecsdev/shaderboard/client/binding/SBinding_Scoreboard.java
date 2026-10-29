@@ -27,25 +27,25 @@ import java.util.Optional;
  */
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-public final class ScoreboardBinding extends ShaderboardBinding<Integer>
+public final class SBinding_Scoreboard extends ShaderboardBinding<Integer>
 {
 	// ================================================== ==================================================
-	//                                  ScoreboardBinding IMPLEMENTATION
+	//                                  SBinding_Scoreboard IMPLEMENTATION
 	// ================================================== ==================================================
 	/**
-	 * {@link MapCodec} implementation for serializing {@link ScoreboardBinding} instances.
+	 * {@link MapCodec} implementation for serializing {@link SBinding_Scoreboard} instances.
 	 */
-	public static final MapCodec<ScoreboardBinding> CODEC = RecordCodecBuilder.mapCodec(instance ->
+	public static final MapCodec<SBinding_Scoreboard> CODEC = RecordCodecBuilder.mapCodec(instance ->
 		ShaderboardBinding.baseCodec(instance) //must inherit superclass's CODEC's properties
-				.and(Codec.STRING.fieldOf("objective").forGetter(ScoreboardBinding::getObjective))
-				.and(Target.CODEC.fieldOf("target").forGetter(ScoreboardBinding::getTarget))
-				.apply(instance, ScoreboardBinding::new)
+				.and(Codec.STRING.fieldOf("objective").forGetter(SBinding_Scoreboard::getObjective))
+				.and(Target.CODEC.fieldOf("target").forGetter(SBinding_Scoreboard::getTarget))
+				.apply(instance, SBinding_Scoreboard::new)
 	);
 	// ==================================================
 	private final @NotNull String objective;
 	private final @NotNull Target target;
 	// ==================================================
-    public ScoreboardBinding(@NotNull String uniformName, @NotNull String objective, @NotNull Target target)
+    public SBinding_Scoreboard(@NotNull String uniformName, @NotNull String objective, @NotNull Target target)
 		    throws NullPointerException, IllegalArgumentException
     {
 		super(ShaderboardBindingTypes.SCOREBOARD_OBJECTIVE, uniformName);
@@ -53,8 +53,8 @@ public final class ScoreboardBinding extends ShaderboardBinding<Integer>
 		this.target    = Objects.requireNonNull(target);
 	}
 	// ==================================================
-	public final @Override @NotNull ScoreboardBinding clone() {
-		return new ScoreboardBinding(getUniformName(), getObjective(), getTarget());
+	public final @Override @NotNull SBinding_Scoreboard clone() {
+		return new SBinding_Scoreboard(getUniformName(), getObjective(), getTarget());
 	}
 	public final @Override @NotNull ShaderboardValueType<Integer> getValueType() {
 		return ShaderboardValueTypes.INT;
@@ -108,7 +108,7 @@ public final class ScoreboardBinding extends ShaderboardBinding<Integer>
 	//                                             Target IMPLEMENTATION
 	// ================================================== ==================================================
 	/**
-	 * Describes whose scoreboard objective value a {@link ScoreboardBinding} resolves to.
+	 * Describes whose scoreboard objective value a {@link SBinding_Scoreboard} resolves to.
 	 * @param type Which kind of score holder this target refers to.
 	 * @param name The target's name. Only used by {@link Type#PLAYER};
 	 *             {@code null} for the other types.
