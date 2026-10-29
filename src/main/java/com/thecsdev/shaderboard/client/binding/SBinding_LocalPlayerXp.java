@@ -14,6 +14,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * {@link ShaderboardBinding} implementation used for binding local player's experience
+ * values to applicable shaders.
+ */
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
 public final class SBinding_LocalPlayerXp extends ShaderboardBinding<SBinding_LocalPlayerXp.Value>

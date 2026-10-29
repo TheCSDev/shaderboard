@@ -45,5 +45,12 @@ public final class ShaderboardBindingTypes
 	public static final ShaderboardBindingType<SBinding_LocalPlayerXp> LOCAL_PLAYER_XP = new ShaderboardBindingType<>(SBinding_LocalPlayerXp.class) {
 		public final @Override @NotNull MapCodec<SBinding_LocalPlayerXp> getCodec() { return SBinding_LocalPlayerXp.CODEC; }
 	};
+
+	/**
+	 * {@link ShaderboardBindingType} for {@link SBinding_LocalPlayerAirSupply}.
+	 */
+	public static final ShaderboardBindingType<SBinding_LocalPlayerAirSupply> LOCAL_PLAYER_AIR_SUPPLY = new ShaderboardBindingType<>(SBinding_LocalPlayerAirSupply.class) {
+		public final @Override @NotNull MapCodec<SBinding_LocalPlayerAirSupply> getCodec() { return SBinding_LocalPlayerAirSupply.CODEC; }
+	};
 	// ==================================================
 }
