@@ -2,6 +2,7 @@ package com.thecsdev.shaderboard.client.binding;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.thecsdev.shaderboard.Shaderboard;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBinding;
 import com.thecsdev.shaderboard.api.client.binding.value.ShaderboardValueType;
 import com.thecsdev.shaderboard.api.client.binding.value.ShaderboardValueTypes;
@@ -50,9 +51,18 @@ public final class SBinding_LocalPlayerAttribute extends ShaderboardBinding<SBin
 	private final @NotNull Holder<Attribute> attribute;
 	private final @NotNull Value             value = new Value();
 	// ==================================================
-	public SBinding_LocalPlayerAttribute(@NotNull String uniformName, @NotNull Holder<Attribute> attribute) {
+	public SBinding_LocalPlayerAttribute(@NotNull String uniformName, @NotNull Holder<Attribute> attribute)
+	{
+		//initialize
 		super(ShaderboardBindingTypes.LOCAL_PLAYER_ATTRIBUTE, uniformName);
 		this.attribute = Objects.requireNonNull(attribute);
+
+		//log warning if needed
+		if(!attribute.value().isClientSyncable() && Shaderboard.getConfig().logBindingConfigWarnins())
+			Shaderboard.LOGGER.warn(
+					"Attribute '{}' is not syncable with client; value of '{}' may differ from one on the server-side.",
+					attribute.getRegisteredName(),
+					uniformName);
 	}
 	// ==================================================
 	/**
