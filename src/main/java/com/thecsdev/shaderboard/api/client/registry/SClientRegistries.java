@@ -52,6 +52,7 @@ public final class SClientRegistries
 		Registry.register(BINDING_TYPE, id("local_player_food"),       ShaderboardBindingTypes.LOCAL_PLAYER_FOOD);
 		Registry.register(BINDING_TYPE, id("local_player_xp"),         ShaderboardBindingTypes.LOCAL_PLAYER_XP);
 		Registry.register(BINDING_TYPE, id("local_player_air_supply"), ShaderboardBindingTypes.LOCAL_PLAYER_AIR_SUPPLY);
+		Registry.register(BINDING_TYPE, id("local_player_attribute"), ShaderboardBindingTypes.LOCAL_PLAYER_ATTRIBUTE);
 	}
 	// --------------------------------------------------
 	/**
