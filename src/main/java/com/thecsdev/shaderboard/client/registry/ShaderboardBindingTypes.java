@@ -59,5 +59,12 @@ public final class ShaderboardBindingTypes
 	public static final ShaderboardBindingType<SBinding_LocalPlayerAttribute> LOCAL_PLAYER_ATTRIBUTE = new ShaderboardBindingType<>(SBinding_LocalPlayerAttribute.class) {
 		public final @Override @NotNull MapCodec<SBinding_LocalPlayerAttribute> getCodec() { return SBinding_LocalPlayerAttribute.CODEC; }
 	};
+
+	/**
+	 * {@link ShaderboardBindingType} for {@link SBinding_LocalPlayerStatusEffect}.
+	 */
+	public static final ShaderboardBindingType<SBinding_LocalPlayerStatusEffect> LOCAL_PLAYER_STATUS_EFFECT = new ShaderboardBindingType<>(SBinding_LocalPlayerStatusEffect.class) {
+		public final @Override @NotNull MapCodec<SBinding_LocalPlayerStatusEffect> getCodec() { return SBinding_LocalPlayerStatusEffect.CODEC; }
+	};
 	// ==================================================
 }

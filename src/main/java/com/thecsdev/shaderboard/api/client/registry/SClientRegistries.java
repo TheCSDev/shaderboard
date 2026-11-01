@@ -47,12 +47,13 @@ public final class SClientRegistries
 		BINDING_TYPE = new MappedRegistry<>(createRegistryKey(id("binding_type")), Lifecycle.stable());
 
 		//register binding types
-		Registry.register(BINDING_TYPE, id("scoreboard_objective"),    ShaderboardBindingTypes.SCOREBOARD_OBJECTIVE);
-		Registry.register(BINDING_TYPE, id("local_player_health"),     ShaderboardBindingTypes.LOCAL_PLAYER_HEALTH);
-		Registry.register(BINDING_TYPE, id("local_player_food"),       ShaderboardBindingTypes.LOCAL_PLAYER_FOOD);
-		Registry.register(BINDING_TYPE, id("local_player_xp"),         ShaderboardBindingTypes.LOCAL_PLAYER_XP);
-		Registry.register(BINDING_TYPE, id("local_player_air_supply"), ShaderboardBindingTypes.LOCAL_PLAYER_AIR_SUPPLY);
-		Registry.register(BINDING_TYPE, id("local_player_attribute"), ShaderboardBindingTypes.LOCAL_PLAYER_ATTRIBUTE);
+		Registry.register(BINDING_TYPE, id("scoreboard_objective"),       ShaderboardBindingTypes.SCOREBOARD_OBJECTIVE);
+		Registry.register(BINDING_TYPE, id("local_player_health"),        ShaderboardBindingTypes.LOCAL_PLAYER_HEALTH);
+		Registry.register(BINDING_TYPE, id("local_player_food"),          ShaderboardBindingTypes.LOCAL_PLAYER_FOOD);
+		Registry.register(BINDING_TYPE, id("local_player_xp"),            ShaderboardBindingTypes.LOCAL_PLAYER_XP);
+		Registry.register(BINDING_TYPE, id("local_player_air_supply"),    ShaderboardBindingTypes.LOCAL_PLAYER_AIR_SUPPLY);
+		Registry.register(BINDING_TYPE, id("local_player_attribute"),     ShaderboardBindingTypes.LOCAL_PLAYER_ATTRIBUTE);
+		Registry.register(BINDING_TYPE, id("local_player_status_effect"), ShaderboardBindingTypes.LOCAL_PLAYER_STATUS_EFFECT);
 	}
 	// --------------------------------------------------
 	/**
