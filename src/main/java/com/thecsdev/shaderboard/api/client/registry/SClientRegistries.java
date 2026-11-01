@@ -54,6 +54,7 @@ public final class SClientRegistries
 		Registry.register(BINDING_TYPE, id("local_player_air_supply"),    ShaderboardBindingTypes.LOCAL_PLAYER_AIR_SUPPLY);
 		Registry.register(BINDING_TYPE, id("local_player_attribute"),     ShaderboardBindingTypes.LOCAL_PLAYER_ATTRIBUTE);
 		Registry.register(BINDING_TYPE, id("local_player_status_effect"), ShaderboardBindingTypes.LOCAL_PLAYER_STATUS_EFFECT);
+		Registry.register(BINDING_TYPE, id("local_player_motion_state"),  ShaderboardBindingTypes.LOCAL_PLAYER_MOTION_STATE);
 	}
 	// --------------------------------------------------
 	/**
