@@ -141,6 +141,7 @@ public final class ShaderboardValueWriter
 	 * <b>Alignment:</b> 4
 	 */
 	@ApiStatus.Experimental //cannot decide whether to include, because of SPIR-V
+	@Deprecated(forRemoval = true) //decided to remove. use 0-1 int instead
 	public final @NotNull ShaderboardValueWriter putBoolean(boolean value) {
 		return putInt(value ? 1 : 0);
 	}

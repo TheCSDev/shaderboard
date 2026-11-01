@@ -58,6 +58,7 @@ public final class ShaderboardValueTypes
 	 * @apiNote Declare the GLSL member as an {@link Integer}, not a {@link Boolean}.
 	 */
 	@ApiStatus.Experimental //cannot decide whether to include, because of SPIR-V
+	@Deprecated(forRemoval = true) //decided to remove. use 0-1 int instead
 	public static final ShaderboardValueType<Boolean> BOOL = type(4, 4, ShaderboardValueWriter::putBoolean);
 	// --------------------------------------------------
 	/**
@@ -196,6 +197,7 @@ public final class ShaderboardValueTypes
 	 * @throws IllegalArgumentException If {@code length} is not positive.
 	 */
 	@ApiStatus.Experimental //cannot decide whether to include, because of SPIR-V
+	@Deprecated(forRemoval = true) //decided to remove. use 0-1 int instead
 	public static @NotNull ShaderboardValueType<boolean[]> boolArray(int length) throws IllegalArgumentException {
 		return primitiveArray(length, 4, (out, value, i) -> out.putBoolean(value[i]));
 	}
