@@ -33,6 +33,21 @@ Add a `"shaderboard:bindings"` array at the root of a [post-effect JSON](https:/
 			"type": "shaderboard:scoreboard_objective",
 			"objective": "example_1",
 			"target": { "type": "player", "name": "Steve" }
+		},
+		{
+			"uniform_name": "u_SortedScoresAZ",
+			"type": "shaderboard:scoreboard_objective",
+			"objective": "example_1",
+			"target":
+			{
+				"type": "scores",
+				"count": 16,
+				"include_hidden": true,
+				"sort": [
+					{ "by": "name", "order": "ascending" }
+				],
+				"offset": 0
+			}
 		}
 	]
 }
@@ -45,24 +60,29 @@ Add a `"shaderboard:bindings"` array at the root of a [post-effect JSON](https:/
 **When** `type` is `shaderboard:scoreboard_objective`**:**
 - `objective` - Scoreboard objective name.
 - `target` - Defines which score of an objective to bind.
-    - `type` - The type of target to bind to. Local player's score (`local_player`), or a specific player's score (`player`), or the top player's score (`top_player`).
+	- `type` - The type of target to bind to; local player's score (`local_player`), a specific player's score (`player`), the top score (`top_player`), or a fixed-size array of scores (`scores`).
 	- `name` - When `type` is `player`, this additional field defines "which player".
+	- `include_hidden` - When `type` is `top_player` or `scores`; Whether to include hidden scores (whose names start with `#`). Defaults to `false`.
+	- `count` - Required for `scores`: fixed array length, from `1` to `1024`.
+	- `sort` - When `type` is `scores`; optional array of sort keys. Each entry requires `by` (`name` or `value`) and `order` (`ascending` or `descending`).
+	- `offset` - When `type` is `top_player` or `scores`; number of sorted scores to skip. Defaults to `0`.
 
 ---
 
 ## Reading a binding's value in GLSL
 
-Each binding's `uniform_name` becomes a `layout(std140)` uniform block. Its contents are defined by the binding's **value type**. The scoreboard binding produces a single `int`:
+Each binding's `uniform_name` becomes a `layout(std140)` uniform block. Its contents are defined by the binding's **value type**. Scalar scoreboard targets produce a single `int`:
 
 ```glsl
 layout(std140) uniform u_TopScore { int topScore; };
+layout(std140) uniform u_SortedScoresAZ { int sortedScores[16]; };
 
 void main()
 {
 	//base output color
 	fragColor = texture(InSampler, texCoord);
 
-	//...use 'topScore' however you'd like here...
+	//...use 'topScore' and 'sortedScores' however you'd like here...
 }
 ```
 

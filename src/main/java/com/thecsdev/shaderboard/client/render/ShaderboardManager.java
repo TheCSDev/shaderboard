@@ -8,6 +8,7 @@ import com.mojang.renderpearl.api.buffers.GpuBuffer;
 import com.mojang.serialization.JsonOps;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBinding;
 import com.thecsdev.shaderboard.api.client.binding.value.ShaderboardValueWriter;
+import com.thecsdev.shaderboard.api.client.registry.SClientRegistries;
 import com.thecsdev.shaderboard.client.mixin.hooks.AccessorShaderManager;
 import io.netty.util.internal.UnstableApi;
 import net.fabricmc.api.EnvType;
@@ -78,6 +79,9 @@ public final class ShaderboardManager
 	public static final void reloadBeginCallback(@NotNull ResourceManager resourceManager)
 			throws NullPointerException
 	{
+		//startup registrations are complete; freeze registry holders before decoding bindings
+		SClientRegistries.BINDING_TYPE.freeze();
+
 		//create a new temp. map to collect bindings into
 		final var collected = new HashMap<Identifier, Map<Integer, List<ShaderboardBinding<?>>>>();
 
