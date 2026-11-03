@@ -61,7 +61,7 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 		super(ShaderboardBindingTypes.SCOREBOARD_OBJECTIVE, uniformName);
 		this.objective    = Objects.requireNonNull(objective);
 		this.target       = Objects.requireNonNull(target).validate().getOrThrow(IllegalArgumentException::new);
-		final var isArray = (target.type() == Target.Type.SCORES);
+		final var isArray = (target.type() == Target.Type.ARRAY);
 		this.value        = new int[isArray ? Objects.requireNonNull(target.count()) : 1];
 		this.valueType    = isArray
 				? ShaderboardValueTypes.intArray(this.value.length)
@@ -120,7 +120,7 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 				.filter(score -> switch(this.target.type()) {
 					case LOCAL_PLAYER       -> score.owner().equalsIgnoreCase(localPlayerName);
 					case PLAYER             -> score.owner().equalsIgnoreCase(this.target.name());
-					case TOP_PLAYER, SCORES -> true;
+					case TOP_PLAYER, ARRAY  -> true;
 				})
 				.sorted(this.scoreOrder)
 				.skip(this.target.offset() != null ? this.target.offset() : 0)
@@ -146,8 +146,8 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 	 * @param type Type of score holder this target refers to.
 	 * @param name When {@link Type#PLAYER}; the target plauer's name..
 	 * @param includeHidden Whether hidden scores can be targeted.
-	 * @param count When {@link Type#SCORES}; the array's length.
-	 * @param sort When {@link Type#SCORES}; how the array is sorted.
+	 * @param count When {@link Type#ARRAY}; the array's length.
+	 * @param sort When {@link Type#ARRAY}; how the array is sorted.
 	 * @param offset How many entries to skip after sorting.
 	 */
 	public record Target(
@@ -156,7 +156,7 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 	{
 		// ==================================================
 		/**
-		 * When {@link Type#SCORES}; maximum array length.
+		 * When {@link Type#ARRAY}; maximum array length.
 		 */
 		public static final int MAX_COUNT = 128;
 		// --------------------------------------------------
@@ -190,20 +190,20 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 			if(this.type == Type.PLAYER && this.name == null)
 				return DataResult.error(() -> "Target type is 'player', but 'name' is not defined");
 
-			//when 'type' is 'scores', array size must be defined
-			if(this.type == Type.SCORES) {
+			//when 'type' is 'array', array size must be defined
+			if(this.type == Type.ARRAY) {
 				if(this.count == null || this.count < 1 || this.count > MAX_COUNT)
-					return DataResult.error(() -> "Target type is 'scores', but 'count' is not between 1 and " + MAX_COUNT + " (inclusive); got " + this.count);
+					return DataResult.error(() -> "Target type is 'array', but 'count' is not between 1 and " + MAX_COUNT + " (inclusive); got " + this.count);
 			}
-			//when 'type' is not 'scores', 'count' and 'sort' must not be defined
+			//when 'type' is not 'array', 'count' and 'sort' must not be defined
 			else if(this.count != null || this.sort != null)
-				return DataResult.error(() -> "Target type is not 'scores', yet 'count' or 'sort' is defined");
+				return DataResult.error(() -> "Target type is not 'array', yet 'count' or 'sort' is defined");
 
 			//handle presence of 'offset'
 			if(this.offset != null) {
-				//only 'scores' and 'top_player' support 'offset'
-				if(this.type != Type.SCORES && this.type != Type.TOP_PLAYER)
-					return DataResult.error(() -> "Target type is not 'scores' or 'top_player', yet 'offset' is defined");
+				//only 'array' and 'top_player' support 'offset'
+				if(this.type != Type.ARRAY && this.type != Type.TOP_PLAYER)
+					return DataResult.error(() -> "Target type is not 'array' or 'top_player', yet 'offset' is defined");
 				//offset must not be negative
 				if(this.offset < 0)
 					return DataResult.error(() -> "Target 'offset' must not be negative");
@@ -246,7 +246,7 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 			else result = AccessorHud.getScoreDisplayOrder();
 
 			//break any remaining ties using player name
-			if(this.type == Type.SCORES)
+			if(this.type == Type.ARRAY)
 				result = result.thenComparing(PlayerScoreEntry::owner);
 
 			//return the result
@@ -269,7 +269,7 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 			TOP_PLAYER("top_player"),
 
 			/** A fixed-size array of sorted scores. */
-			SCORES("scores");
+			ARRAY("array");
 			// --------------------------------------------------
 			private final @NotNull String id;
 			Type(@NotNull String id) { this.id = id; }
@@ -283,7 +283,7 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 	// ================================================== ==================================================
 	/**
 	 * Used for sorting scoreboard entries when a {@link Target} is of
-	 * type {@link Target.Type#SCORES}.
+	 * type {@link Target.Type#ARRAY}.
 	 */
 	@ApiStatus.Internal
 	public record Sort(@NotNull By by, @NotNull Order order)

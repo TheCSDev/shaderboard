@@ -40,7 +40,7 @@ Add a `"shaderboard:bindings"` array at the root of a [post-effect JSON](https:/
 			"objective": "example_1",
 			"target":
 			{
-				"type": "scores",
+				"type": "array",
 				"count": 16,
 				"include_hidden": true,
 				"sort": [
@@ -60,12 +60,12 @@ Add a `"shaderboard:bindings"` array at the root of a [post-effect JSON](https:/
 **When** `type` is `shaderboard:scoreboard_objective`**:**
 - `objective` - Scoreboard objective name.
 - `target` - Defines which score of an objective to bind.
-	- `type` - The type of target to bind to; local player's score (`local_player`), a specific player's score (`player`), the top score (`top_player`), or a fixed-size array of scores (`scores`).
+	- `type` - The type of target to bind to; local player's score (`local_player`), a specific player's score (`player`), the top score (`top_player`), or a fixed-size array of scores (`array`).
 	- `name` - When `type` is `player`, this additional field defines "which player".
-	- `include_hidden` - When `type` is `top_player` or `scores`; Whether to include hidden scores (whose names start with `#`). Defaults to `false`.
-	- `count` - Required for `scores`: fixed array length, from `1` to `1024`.
-	- `sort` - When `type` is `scores`; optional array of sort keys. Each entry requires `by` (`name` or `value`) and `order` (`ascending` or `descending`).
-	- `offset` - When `type` is `top_player` or `scores`; number of sorted scores to skip. Defaults to `0`.
+	- `include_hidden` - When `type` is `top_player` or `array`; Whether to include hidden scores (whose names start with `#`). Defaults to `false`.
+	- `count` - Required for `array`: fixed array length, from `1` to `1024`.
+	- `sort` - When `type` is `array`; optional array of sort keys. Each entry requires `by` (`name` or `value`) and `order` (`ascending` or `descending`).
+	- `offset` - When `type` is `top_player` or `array`; number of sorted scores to skip. Defaults to `0`.
 
 ---
 
