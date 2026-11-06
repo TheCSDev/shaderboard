@@ -2,7 +2,10 @@ package com.thecsdev.shaderboard.client.binding;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.thecsdev.shaderboard.api.client.binding.ShaderboardBinding;
 import com.thecsdev.shaderboard.api.client.binding.value.ShaderboardValueType;
@@ -24,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * {@link ShaderboardBinding} implementation used for binding scoreboard objective
@@ -161,13 +165,58 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 		public static final int MAX_COUNT = 128;
 		// --------------------------------------------------
 		/**
+		 * {@link Codec} implementation for the '{@code length}' {@link Integer}
+		 * field, with aliases.
+		 */
+		@ApiStatus.Internal
+		private static final MapCodec<Optional<Integer>> CODEC_LENGTH = new MapCodec<>()
+		{
+			// --------------------------------------------------
+			public final @Override <T> DataResult<Optional<Integer>> decode(DynamicOps<T> ops, MapLike<T> input)
+			{
+				//prepare the initial result
+				DataResult<Optional<Integer>> result = DataResult.success(Optional.empty());
+
+				//iterate all aliases and attempt to read them
+				for(final var key : List.of("length", "count", "size"))
+				{
+					//obtain the value for this alias, if present
+					final var value = input.get(key);
+					if(value == null) continue;
+
+					//attempt to parse the value as an integer, and ensure it agrees with any previous alias
+					result = result.flatMap(previous -> Codec.INT.parse(ops, value)
+							.mapError(message -> "Invalid target '" + key + "': " + message)
+							.flatMap(length ->
+							{
+								//if there's a previous alias, ensure it agrees with this one
+								if(previous.isPresent() && !previous.get().equals(length))
+									return DataResult.error(() -> "Multiple aliases for target array 'length' are defined, but they disagree: " + previous.get() + " vs " + length);
+								//return the result
+								return DataResult.success(Optional.of(length));
+							}));
+				}
+				return result;
+			}
+			// --------------------------------------------------
+			public final @Override <T> RecordBuilder<T> encode(Optional<Integer> input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
+				return input.isPresent() ? prefix.add("length", Codec.INT.encodeStart(ops, input.get())) : prefix;
+			}
+			// --------------------------------------------------
+			public final @Override <T> Stream<T> keys(DynamicOps<T> ops) {
+				return Stream.of("length", "count", "size").map(ops::createString);
+			}
+			// --------------------------------------------------
+		};
+		// --------------------------------------------------
+		/**
 		 * {@link Codec} for selection settings. Defaults preserve existing scalar targets.
 		 */
 		public static final Codec<Target> CODEC = RecordCodecBuilder.<Target>create(instance -> instance.group(
 				StringRepresentable.fromEnum(Type::values).fieldOf("type").forGetter(Target::type),
 				Codec.STRING.optionalFieldOf("name").forGetter(t -> Optional.ofNullable(t.name())),
 				Codec.BOOL.optionalFieldOf("include_hidden", false).forGetter(Target::includeHidden),
-				Codec.INT.optionalFieldOf("count").forGetter(t -> Optional.ofNullable(t.count())),
+				CODEC_LENGTH.forGetter(t -> Optional.ofNullable(t.count())),
 				Sort.CODEC.listOf().optionalFieldOf("sort").forGetter(t -> Optional.ofNullable(t.sort())),
 				Codec.INT.optionalFieldOf("offset").forGetter(t -> Optional.ofNullable(t.offset()))
 		).apply(instance, (type, name, includeHidden, count, sort, offset) -> new Target(
@@ -193,11 +242,11 @@ public final class SBinding_Scoreboard extends ShaderboardBinding<int[]>
 			//when 'type' is 'array', array size must be defined
 			if(this.type == Type.ARRAY) {
 				if(this.count == null || this.count < 1 || this.count > MAX_COUNT)
-					return DataResult.error(() -> "Target type is 'array', but 'count' is not between 1 and " + MAX_COUNT + " (inclusive); got " + this.count);
+					return DataResult.error(() -> "Target type is 'array', but 'length' is not between 1 and " + MAX_COUNT + " (inclusive); got " + this.count);
 			}
 			//when 'type' is not 'array', 'count' and 'sort' must not be defined
 			else if(this.count != null || this.sort != null)
-				return DataResult.error(() -> "Target type is not 'array', yet 'count' or 'sort' is defined");
+				return DataResult.error(() -> "Target type is not 'array', yet 'length' or 'sort' is defined");
 
 			//handle presence of 'offset'
 			if(this.offset != null) {
