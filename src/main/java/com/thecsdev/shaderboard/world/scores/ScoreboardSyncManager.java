@@ -2,10 +2,13 @@ package com.thecsdev.shaderboard.world.scores;
 
 import com.thecsdev.shaderboard.world.level.saveddata.ScoreboardSyncData;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerScoreboard;
+import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -38,9 +41,7 @@ public final @ApiStatus.Internal class ScoreboardSyncManager
 
 		//start tracking only if vanilla is not already synchronizing via a display slot
 		//(objectives with a display slot are already synced by the vanilla game)
-		final var scoreboard = server.getScoreboard();
-		if(scoreboard.getObjectiveDisplaySlotCount(objective) == 0)
-			scoreboard.startTrackingObjective(objective);
+		startTrackingIfNotDisplayed(server.getScoreboard(), objective);
 		return true;
 	}
 	// --------------------------------------------------
@@ -70,6 +71,45 @@ public final @ApiStatus.Internal class ScoreboardSyncManager
 		if(objective != null && scoreboard.getObjectiveDisplaySlotCount(objective) == 0)
 			scoreboard.stopTrackingObjective(objective);
 		return true;
+	}
+	// --------------------------------------------------
+	/**
+	 * Restores tracking of selected {@link Objective}s after world data loads.
+	 * @param server The {@link MinecraftServer} whose selection to restore.
+	 * @throws NullPointerException If the argument is {@code null}.
+	 * @apiNote Called after the game loads a world/level.
+	 */
+	public static final void restoreObjectives(@NotNull MinecraftServer server) throws NullPointerException
+	{
+		//requirements
+		Objects.requireNonNull(server);
+		final var scoreboard = server.getScoreboard();
+		final var data       = ScoreboardSyncData.of(server);
+
+		//iterate a copy so names can be removed from the selection
+		for(final var name : List.copyOf(data.getObjectives()))
+		{
+			//obtain the scoreboard objective
+			final var objective = scoreboard.getObjective(name);
+
+			//ignore objectives that no longer exist
+			if(objective == null) {
+				data.removeObjective(name);
+				continue;
+			}
+
+			//begin tracking the objective (if needed)
+			startTrackingIfNotDisplayed(scoreboard, objective);
+		}
+	}
+	// ==================================================
+	/**
+	 * Starts tracking a scoreboard {@link Objective} unless vanilla already
+	 * does it itself (i.e. when said {@link Objective} has a {@link DisplaySlot} assigned).
+	 */
+	private static void startTrackingIfNotDisplayed(@NotNull ServerScoreboard scoreboard, @NotNull Objective objective) {
+		if(scoreboard.getObjectiveDisplaySlotCount(objective) == 0)
+			scoreboard.startTrackingObjective(objective);
 	}
 	// ==================================================
 }
