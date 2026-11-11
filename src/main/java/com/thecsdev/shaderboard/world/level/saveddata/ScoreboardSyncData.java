@@ -20,6 +20,7 @@ import java.util.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import static com.thecsdev.shaderboard.Shaderboard.MOD_ID;
 
@@ -103,7 +104,7 @@ public final @ApiStatus.Internal class ScoreboardSyncData
 	 * @param file The destination file {@link Path}.
 	 * @throws NullPointerException If the argument is {@code null}.
 	 * @throws IllegalArgumentException If {@link Path} does not end with {@code .json}.
-	 * @throws IOException If encoding or writing fails.
+	 * @throws IOException If encoding or an I/O operation fails.
 	 */
 	public final void save(@NotNull Path file)
 			throws NullPointerException, IllegalArgumentException, IOException
@@ -113,16 +114,32 @@ public final @ApiStatus.Internal class ScoreboardSyncData
 		if(file.getFileName() == null || !file.getFileName().toString().endsWith(".json"))
 			throw new IllegalArgumentException("Expected a '.json' file path; got '" + file + "'");
 
-		//encode the data and create the parent directory
+		//encode the data
 		final var data = CODEC.encodeStart(JsonOps.INSTANCE, this).getOrThrow(IOException::new);
-		Files.createDirectories(file.toAbsolutePath().getParent());
 
-		//write the JSON file
-		try(final var writer = Files.newBufferedWriter(file)) {
-			GSON.toJson(data, writer);
-		} catch(JsonIOException e) {
-			throw new IOException("Unable to write JSON to '" + file + "'", e);
+		//create parent directories
+		final var targetFile = file.toAbsolutePath();
+		Files.createDirectories(targetFile.getParent());
+
+		//create a temp JSON file in the same directory
+		//(this is done for redundancy, so i/o errors don't corrupt the real target file mid-write)
+		final var tempFile = Files.createTempFile(
+				targetFile.getParent(),
+				targetFile.getFileName() + ".",
+				".tmp");
+		//write the encoded data to the file
+		try {
+			//write JSON data file
+			try(final var writer = Files.newBufferedWriter(tempFile)) {
+				GSON.toJson(data, writer);
+			}
+			//replace the real target file with the temp file
+			Files.move(
+					tempFile, targetFile,
+					StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
 		}
+		catch(JsonIOException e) { throw new IOException("Unable to write JSON to '" + file + "'", e); }
+		finally { Files.deleteIfExists(tempFile); }
 	}
 	// ==================================================
 	/**
@@ -175,9 +192,7 @@ public final @ApiStatus.Internal class ScoreboardSyncData
 					.parse(JsonOps.INSTANCE, StrictJsonParser.parse(reader))
 					.getOrThrow(IOException::new);
 		}
-		catch(JsonParseException e) {
-			throw new IOException("Unable to read JSON from '" + file + "'", e);
-		}
+		catch(JsonParseException e) { throw new IOException("Unable to read JSON from '" + file + "'", e); }
 	}
 	// ==================================================
 }

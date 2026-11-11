@@ -14,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
 
+import static com.thecsdev.shaderboard.Shaderboard.LOGGER;
+
 /**
  * Common-side {@link Mixin} for vanilla's {@link MinecraftServer}.
  */
@@ -70,7 +72,7 @@ public abstract class MixinMinecraftServer implements ScoreboardSyncDataHolder
 		//save the file's data
 		final var filePath = ScoreboardSyncData.getFile((MinecraftServer)(Object)this);
 		try { this.shaderboard$syncData.save(filePath); }
-		catch(IOException e) { throw new IllegalStateException("Unable to save file at: " + filePath, e); }
+		catch(IOException e) { LOGGER.error("Unable to save file at: {}", filePath, e); }
 	}
 	// ==================================================
 }
