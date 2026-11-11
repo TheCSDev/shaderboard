@@ -42,6 +42,10 @@ Add a `"shaderboard:bindings"` array at the root of a [post-effect JSON](https:/
 
 ## Reading a binding's value in GLSL
 
+> **<ins>Important</ins>:** Scoreboard scores are server-sided and by default do not synchronize with clients. To resolve this, use one of the two following solutions:
+> 1. `/scoreboard objectives setdisplay ...` - Makes the vanilla game synchronize an objective's values with the client by visually displaying it on-screen.
+> 2. `/scoreboard objectives shaderboard:sync ...` (v2.4.0+) - This mod's way of synchronizing objective values with clients in the background, without needing `setdisplay`. Requires installing this mod on the server-side.
+
 Each binding's `uniform_name` becomes a `layout(std140)` uniform block. Its contents are defined by the binding's **value type**. Scalar scoreboard targets produce a single `int`:
 
 ```glsl
