@@ -1,7 +1,9 @@
 package com.thecsdev.shaderboard;
 
 import com.thecsdev.common.util.TUtils;
+import com.thecsdev.commonmc.api.events.CommandEvent;
 import com.thecsdev.shaderboard.client.ShaderboardClient;
+import com.thecsdev.shaderboard.command.ScoreboardSyncCommand;
 import com.thecsdev.shaderboard.server.ShaderboardServer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -77,6 +79,10 @@ public class Shaderboard
 
 		//load the config
 		TUtils.uncheckedCall(CONFIG::loadFromFile);
+
+		//register commands
+		CommandEvent.INIT_COMMANDS.addListener((dispatcher, _, _) ->
+				ScoreboardSyncCommand.register(dispatcher));
 	}
 	// ==================================================
 	/**
