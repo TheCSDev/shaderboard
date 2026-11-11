@@ -2,23 +2,18 @@ package com.thecsdev.shaderboard.world.level.saveddata;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.scores.Objective;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.thecsdev.shaderboard.Shaderboard.MOD_ID;
-
 /**
  * Holds the names of scoreboard {@link Objective}s selected for background
  * synchronization in a given world/level.
  */
-public final @ApiStatus.Internal class ScoreboardSyncData extends SavedData
+public final @ApiStatus.Internal class ScoreboardSyncData
 {
 	// ==================================================
 	/**
@@ -36,15 +31,6 @@ public final @ApiStatus.Internal class ScoreboardSyncData extends SavedData
 			Codec.intRange(0, FORMAT_VERSION).optionalFieldOf("version", 0).forGetter(_ -> FORMAT_VERSION),
 			Codec.STRING.listOf().fieldOf("objectives").forGetter(data -> data.getObjectives().stream().sorted().toList())
 	).apply(instance, (_, objectives) -> new ScoreboardSyncData(objectives)));
-	// --------------------------------------------------
-	/**
-	 * {@link SavedDataType} describing this data's storage identity, factory,
-	 * and {@link Codec}.
-	 */
-	@SuppressWarnings("DataFlowIssue") //intentional - a Mixin covers it
-	public static final SavedDataType<ScoreboardSyncData> TYPE = new SavedDataType<>(
-			Identifier.fromNamespaceAndPath(MOD_ID, "scoreboard_sync"),
-			ScoreboardSyncData::new, CODEC, null);
 	// ==================================================
 	private final @NotNull Set<String> objectives = new HashSet<>();
 	// ==================================================
@@ -76,15 +62,8 @@ public final @ApiStatus.Internal class ScoreboardSyncData extends SavedData
 	 * @return {@code true} if the name was not in the collection of added names.
 	 * @throws NullPointerException If the argument is {@code null}.
 	 */
-	public final boolean addObjective(@NotNull String name) throws NullPointerException
-	{
-		//add the name
-		if(!this.objectives.add(Objects.requireNonNull(name)))
-			return false; //ignore if already added
-
-		//mark as dirty and return
-		setDirty();
-		return true;
+	public final boolean addObjective(@NotNull String name) throws NullPointerException {
+		return this.objectives.add(Objects.requireNonNull(name));
 	}
 
 	/**
@@ -93,15 +72,8 @@ public final @ApiStatus.Internal class ScoreboardSyncData extends SavedData
 	 * @return {@code true} if the name was in the collection of added names.
 	 * @throws NullPointerException If the argument is {@code null}.
 	 */
-	public final boolean removeObjective(@NotNull String name) throws NullPointerException
-	{
-		//remove the name
-		if(!this.objectives.remove(Objects.requireNonNull(name)))
-			return false; //ignore if already not present
-
-		//mark as dirty and return
-		setDirty();
-		return true;
+	public final boolean removeObjective(@NotNull String name) throws NullPointerException {
+		return this.objectives.remove(Objects.requireNonNull(name)); //ignore if already not present
 	}
 	// ==================================================
 	/**
@@ -112,7 +84,8 @@ public final @ApiStatus.Internal class ScoreboardSyncData extends SavedData
 	 * @apiNote Call this on the server thread.
 	 */
 	public static final @NotNull ScoreboardSyncData of(@NotNull MinecraftServer server) throws NullPointerException {
-		return Objects.requireNonNull(server).getDataStorage().computeIfAbsent(TYPE);
+		Objects.requireNonNull(server);
+		return ((ScoreboardSyncDataHolder)server).shaderboard$getScoreboardSyncData();
 	}
 	// ==================================================
 }
