@@ -1,6 +1,7 @@
 package com.thecsdev.shaderboard.world.level.saveddata;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -22,12 +23,20 @@ public final @ApiStatus.Internal class ScoreboardSyncData extends SavedData
 {
 	// ==================================================
 	/**
-	 * {@link Codec} implementation for serializing {@link ScoreboardSyncData}.
-	 * Stores the selected {@link Objective} names under the {@code objectives} field.
+	 * Current version of this mod's saved-data format.
+	 * Unversioned data is version {@code 0}.
 	 */
-	public static final Codec<ScoreboardSyncData> CODEC = Codec.STRING.listOf()
-			.fieldOf("objectives").codec()
-			.xmap(ScoreboardSyncData::new, data -> data.getObjectives().stream().sorted().toList());
+	public static final int FORMAT_VERSION = 1;
+	// --------------------------------------------------
+	/**
+	 * {@link Codec} implementation for serializing {@link ScoreboardSyncData}.
+	 * Reads versions {@code 0} and {@code 1}, which share the same objectives format,
+	 * and writes the current {@link #FORMAT_VERSION}.
+	 */
+	public static final Codec<ScoreboardSyncData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			Codec.intRange(0, FORMAT_VERSION).optionalFieldOf("version", 0).forGetter(_ -> FORMAT_VERSION),
+			Codec.STRING.listOf().fieldOf("objectives").forGetter(data -> data.getObjectives().stream().sorted().toList())
+	).apply(instance, (_, objectives) -> new ScoreboardSyncData(objectives)));
 	// --------------------------------------------------
 	/**
 	 * {@link SavedDataType} describing this data's storage identity, factory,
