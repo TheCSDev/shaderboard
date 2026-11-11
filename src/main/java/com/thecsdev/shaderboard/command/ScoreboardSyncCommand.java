@@ -62,12 +62,12 @@ public final @ApiStatus.Internal class ScoreboardSyncCommand
 		if(names.isEmpty()) {
 			source.sendSuccess(() -> Component.literal("")
 					.append(SLanguage.CHAT_PREFIX)
-					.append(" No objectives are currently manually synched by this mod."),
+					.append(" No objectives are currently manually synced by this mod."),
 				false);
 		} else {
 			source.sendSuccess(() -> Component.literal("")
 					.append(SLanguage.CHAT_PREFIX)
-					.append(" Manually synching " + names.size() + " objectives: ")
+					.append(" Manually syncing " + names.size() + " objectives: ")
 					.append(Component.literal(String.join(", ", names)).withStyle(ChatFormatting.GRAY)),
 				false);
 		}
