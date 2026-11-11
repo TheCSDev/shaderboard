@@ -43,5 +43,33 @@ public final @ApiStatus.Internal class ScoreboardSyncManager
 			scoreboard.startTrackingObjective(objective);
 		return true;
 	}
+	// --------------------------------------------------
+	/**
+	 * Deselects an {@link Objective} from background synchronization.
+	 * @param server The {@link MinecraftServer} whose selection to update.
+	 * @param name The name of the {@link Objective} to deselect.
+	 * @return {@code true} if the {@link Objective} was in the saved selection.
+	 * @throws NullPointerException If an argument is {@code null}.
+	 * @apiNote Call this on the server thread.
+	 */
+	public static final boolean removeObjective(@NotNull MinecraftServer server, @NotNull String name)
+			throws NullPointerException
+	{
+		//not null requirements
+		Objects.requireNonNull(server);
+		Objects.requireNonNull(name);
+
+		//remove the objective from the saved selection
+		if(!ScoreboardSyncData.of(server).removeObjective(name))
+			return false; //ignore if not selected
+
+		//stop tracking only if vanilla is not still synchronizing the objective
+		//(objectives with a display slot are still synced by the vanilla game)
+		final var scoreboard = server.getScoreboard();
+		final var objective  = scoreboard.getObjective(name);
+		if(objective != null && scoreboard.getObjectiveDisplaySlotCount(objective) == 0)
+			scoreboard.stopTrackingObjective(objective);
+		return true;
+	}
 	// ==================================================
 }
