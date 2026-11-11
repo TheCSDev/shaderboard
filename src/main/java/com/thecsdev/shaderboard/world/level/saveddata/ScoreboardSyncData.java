@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.scores.Objective;
@@ -42,11 +41,10 @@ public final @ApiStatus.Internal class ScoreboardSyncData extends SavedData
 	 * {@link SavedDataType} describing this data's storage identity, factory,
 	 * and {@link Codec}.
 	 */
+	@SuppressWarnings("DataFlowIssue") //intentional - a Mixin covers it
 	public static final SavedDataType<ScoreboardSyncData> TYPE = new SavedDataType<>(
 			Identifier.fromNamespaceAndPath(MOD_ID, "scoreboard_sync"),
-			ScoreboardSyncData::new,
-			CODEC,
-			DataFixTypes.SAVED_DATA_SCOREBOARD);
+			ScoreboardSyncData::new, CODEC, null);
 	// ==================================================
 	private final @NotNull Set<String> objectives = new HashSet<>();
 	// ==================================================
