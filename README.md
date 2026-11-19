@@ -50,14 +50,13 @@ Each binding's `uniform_name` becomes a `layout(std140)` uniform block. Its cont
 
 ```glsl
 layout(std140) uniform u_TopScore { int topScore; };
-layout(std140) uniform u_SortedScoresAZ { int sortedScores[16]; };
 
 void main()
 {
 	//base output color
 	fragColor = texture(InSampler, texCoord);
 
-	//...use 'topScore' and 'sortedScores' however you'd like here...
+	//...use 'topScore' however you'd like here...
 }
 ```
 
