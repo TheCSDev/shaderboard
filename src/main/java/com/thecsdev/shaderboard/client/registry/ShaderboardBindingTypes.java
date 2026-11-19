@@ -73,5 +73,12 @@ public final class ShaderboardBindingTypes
 	public static final ShaderboardBindingType<SBinding_LocalPlayerMotionState> LOCAL_PLAYER_MOTION_STATE = new ShaderboardBindingType<>(SBinding_LocalPlayerMotionState.class) {
 		public final @Override @NotNull MapCodec<SBinding_LocalPlayerMotionState> getCodec() { return SBinding_LocalPlayerMotionState.CODEC; }
 	};
+
+	/**
+	 * {@link ShaderboardBindingType} for {@link SBinding_CursorInfo}.
+	 */
+	public static final ShaderboardBindingType<SBinding_CursorInfo> CURSOR_INFO = new ShaderboardBindingType<>(SBinding_CursorInfo.class) {
+		public final @Override @NotNull MapCodec<SBinding_CursorInfo> getCodec() { return SBinding_CursorInfo.CODEC; }
+	};
 	// ==================================================
 }
