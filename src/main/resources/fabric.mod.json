@@ -37,9 +37,9 @@
 			"links":
 			{
 				"modmenu.curseforge": "${properties["mod.link.curseforge"]}",
-				"modmenu.modrinth": "${properties["mod.link.modrinth"]}",
-				"modmenu.wiki": "${properties["mod.link.wiki"]}",
-				"modmenu.donate": "${properties["mod.link.support_me"]}"
+				"modmenu.modrinth":   "${properties["mod.link.modrinth"]}",
+				"modmenu.wiki":       "${properties["mod.link.wiki"]}",
+				"modmenu.donate":     "${properties["mod.link.support_me"]}"
 			}
 		}
 	}
